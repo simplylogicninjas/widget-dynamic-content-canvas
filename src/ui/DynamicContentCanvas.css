@@ -1,0 +1,162 @@
+/*
+Place your custom CSS here
+*/
+.canvas-root {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.canvas-item {
+    position: relative;
+    opacity: 0;
+    position: absolute;
+    transform: var(--translate);
+    touch-action: none;
+    display: flex;
+    flex-direction: column;
+    transform-origin: center center;
+}
+
+.canvas-item:hover .canvas-item__handles {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.canvas-item.active .canvas-item__handles {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.canvas-item__content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    padding: 8px;
+    overflow: hidden;
+}
+
+.canvas-item__handles {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease-in-out;
+}
+
+.resize-handle-bar {
+    position: absolute;
+}
+
+.resize-handle-bar::before {
+    content: "";
+    display: block;
+    position: absolute;
+    background: purple;
+}
+
+.resize-top {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+}
+
+.resize-bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+}
+
+.resize-left {
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+}
+
+.resize-right {
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+}
+
+.resize-top::before,
+.resize-bottom::before {
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
+    transform: translateY(-50%);
+}
+
+.resize-left::before,
+.resize-right::before {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+}
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    background: purple;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+}
+
+.resize-handle-topleft {
+    top: 0;
+    left: 0;
+}
+
+.resize-handle-topright {
+    top: 0;
+    right: 0;
+}
+
+.resize-handle-bottomleft {
+    bottom: 0;
+    left: 0;
+}
+
+.resize-handle-bottomright {
+    bottom: 0;
+    right: 0;
+}
+
+.resize-handle-left {
+    top: 50%;
+}
+
+.resize-handle-right {
+    top: 50%;
+    right: 0;
+}
+
+.rotate-handle {
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -100%);
+}
+
+.canvas-item.init {
+    opacity: 1;
+}
+
+.rotate-icon {
+    width: 2.4rem;
+}

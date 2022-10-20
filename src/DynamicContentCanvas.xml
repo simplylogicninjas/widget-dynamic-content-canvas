@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget id="simplylogic.dynamiccontentcanvas.DynamicContentCanvas" pluginWidget="true" needsEntityContext="true" offlineCapable="true" supportedPlatform="Web" xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
+    <name>Dynamic Content Canvas</name>
+    <description>Widget to place dynamic content</description>
+    <icon />
+    <properties>
+        <propertyGroup caption="General">
+            <property key="sampleText" type="string" required="false">
+                <caption>Default value</caption>
+                <description>Sample text input</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Saved dimension">
+            <property key="savedID" type="attribute">
+                <caption>ID</caption>
+                <description>ID of the item</description>
+                <attributeTypes>
+                    <attributeType name="Long" />
+                </attributeTypes>
+            </property>
+            <property key="savedWidth" type="attribute">
+                <caption>Width</caption>
+                <description>Width of the item</description>
+                <attributeTypes>
+                    <attributeType name="Decimal" />
+                </attributeTypes>
+            </property>
+            <property key="savedHeight" type="attribute">
+                <caption>Height</caption>
+                <description>Height of the item</description>
+                <attributeTypes>
+                    <attributeType name="Decimal" />
+                </attributeTypes>
+            </property>
+            <property key="savedXpos" type="attribute">
+                <caption>Xpos</caption>
+                <description>Xpos of the item</description>
+                <attributeTypes>
+                    <attributeType name="Decimal" />
+                </attributeTypes>
+            </property>
+            <property key="savedYpos" type="attribute">
+                <caption>Ypos</caption>
+                <description>Ypos of the item</description>
+                <attributeTypes>
+                    <attributeType name="Decimal" />
+                </attributeTypes>
+            </property>
+            <property key="savedAngle" type="attribute">
+                <caption>Angle</caption>
+                <description>Angle of the item</description>
+                <attributeTypes>
+                    <attributeType name="Decimal" />
+                </attributeTypes>
+            </property>
+            <property key="savedAction" type="action">
+                <caption>On dimension change</caption>
+                <description>Action to be performed when dimension of an item changed</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Data Source">
+            <propertyGroup caption="Items">
+                <property key="data" type="datasource" isList="true" required="true">
+                    <caption>Data source</caption>
+                    <description />
+                </property>
+                <property key="content" type="widgets" required="false" dataSource="data">
+                    <caption>Content</caption>
+                    <description>Content of a box</description>
+                </property>
+                <property key="itemName" type="attribute" dataSource="data">
+                    <caption>Name</caption>
+                    <description>Name of the item</description>
+                    <attributeTypes>
+                        <attributeType name="String" />
+                    </attributeTypes>
+                </property>
+                <property key="itemId" type="attribute" dataSource="data">
+                    <caption>ID</caption>
+                    <description>ID of the item</description>
+                    <attributeTypes>
+                        <attributeType name="AutoNumber" />
+                    </attributeTypes>
+                </property>
+                <property key="itemWidth" type="attribute" dataSource="data">
+                    <caption>Width</caption>
+                    <description>Width of the item</description>
+                    <attributeTypes>
+                        <attributeType name="Decimal" />
+                    </attributeTypes>
+                </property>
+                <property key="itemHeight" type="attribute" dataSource="data">
+                    <caption>Height</caption>
+                    <description>Height of the item</description>
+                    <attributeTypes>
+                        <attributeType name="Decimal" />
+                    </attributeTypes>
+                </property>
+                <property key="itemXpos" type="attribute" dataSource="data">
+                    <caption>Xpos</caption>
+                    <description>Xpos of the item</description>
+                    <attributeTypes>
+                        <attributeType name="Decimal" />
+                    </attributeTypes>
+                </property>
+                <property key="itemYpos" type="attribute" dataSource="data">
+                    <caption>Ypos</caption>
+                    <description>Ypos of the item</description>
+                    <attributeTypes>
+                        <attributeType name="Decimal" />
+                    </attributeTypes>
+                </property>
+                <property key="itemAngle" type="attribute" dataSource="data">
+                    <caption>Angle</caption>
+                    <description>Angle of the item</description>
+                    <attributeTypes>
+                        <attributeType name="Decimal" />
+                    </attributeTypes>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Locked items">
+                <property key="lockedItemsData" type="datasource" isList="true" required="true">
+                    <caption>Locked items</caption>
+                    <description />
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+        <propertyGroup caption="Events">
+            <propertyGroup caption="On item click">
+                <property key="clickedItemID" type="attribute" onChange="clickedItemAction">
+                    <caption>Clicked item ID</caption>
+                    <description />
+                    <attributeTypes>
+                        <attributeType name="Long" />
+                    </attributeTypes>
+                </property>
+                <property key="clickedItemAction" type="action">
+                    <caption>On item click action</caption>
+                    <description />
+                </property>
+            </propertyGroup>
+
+        </propertyGroup>
+    </properties>
+</widget>
