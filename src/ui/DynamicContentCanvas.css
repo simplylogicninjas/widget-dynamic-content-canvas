@@ -35,8 +35,9 @@ Place your custom CSS here
     flex-direction: column;
     flex: 1;
     height: 100%;
-    padding: 8px;
     overflow: hidden;
+    padding: 8px;
+    z-index: 10;
 }
 
 .canvas-item__handles {
@@ -48,6 +49,7 @@ Place your custom CSS here
     opacity: 0;
     pointer-events: none;
     transition: opacity .15s ease-in-out;
+    border: 2px solid purple;
 }
 
 .resize-handle-bar {
@@ -58,7 +60,6 @@ Place your custom CSS here
     content: "";
     display: block;
     position: absolute;
-    background: purple;
 }
 
 .resize-top {

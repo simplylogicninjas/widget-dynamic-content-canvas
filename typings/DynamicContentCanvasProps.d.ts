@@ -4,7 +4,7 @@
  * @author Mendix UI Content Team
  */
 import { ComponentType, CSSProperties } from "react";
-import { ActionValue, EditableValue, ListValue, ListAttributeValue, ListWidgetValue } from "mendix";
+import { ActionValue, EditableValue, ListValue, ListAttributeValue, ListExpressionValue, ListWidgetValue } from "mendix";
 import { Big } from "big.js";
 
 export interface DynamicContentCanvasContainerProps {
@@ -29,6 +29,8 @@ export interface DynamicContentCanvasContainerProps {
     itemXpos: ListAttributeValue<Big>;
     itemYpos: ListAttributeValue<Big>;
     itemAngle: ListAttributeValue<Big>;
+    itemLockPosition: ListExpressionValue<boolean>;
+    itemAutoHeight: ListExpressionValue<boolean>;
     lockedItemsData: ListValue;
     clickedItemID: EditableValue<Big>;
 }
@@ -55,6 +57,8 @@ export interface DynamicContentCanvasPreviewProps {
     itemXpos: string;
     itemYpos: string;
     itemAngle: string;
+    itemLockPosition: string;
+    itemAutoHeight: string;
     lockedItemsData: {} | { type: string } | null;
     clickedItemID: string;
     clickedItemAction: {} | null;

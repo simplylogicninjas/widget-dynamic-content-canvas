@@ -117,6 +117,16 @@
                         <attributeType name="Decimal" />
                     </attributeTypes>
                 </property>
+                <property key="itemLockPosition" type="expression" dataSource="data">
+                    <caption>Lock position</caption>
+                    <description>If true, then the position of the item cannot be changed. Only the width and or height.</description>
+                    <returnType type="Boolean" />
+                </property>
+                <property key="itemAutoHeight" type="expression" dataSource="data">
+                    <caption>Auto height</caption>
+                    <description>If true, then the height of the item is automatically and cannot be modified</description>
+                    <returnType type="Boolean" />
+                </property>
             </propertyGroup>
             <propertyGroup caption="Locked items">
                 <property key="lockedItemsData" type="datasource" isList="true" required="true">

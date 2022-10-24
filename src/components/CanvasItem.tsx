@@ -11,6 +11,8 @@ interface Props {
     y: number;
     rotation: number;
     locked: boolean;
+    autoHeight: boolean;
+    lockPosition: boolean;
     children?: React.ReactNode;
     onActivate?: (id: string | number) => void;
 }
@@ -24,13 +26,17 @@ const CanvasItem = ({
     x,
     y,
     rotation,
+    autoHeight,
+    lockPosition,
     onActivate,
     children
 }: Props) => {
     const itemRef = createRef<HTMLDivElement>();
-    const [init, setInit] = useState(false);
-    const [itemWidth, setItemWidth] = useState(0);
-    const [itemHeight, setItemHeight] = useState(0);
+    const itemContentRef = createRef<HTMLDivElement>();
+    const [itemWidth, setItemWidth] = useState(width);
+    const [itemHeight, setItemHeight] = useState(height);
+    const [itemX, setItemX] = useState(x);
+    const [itemY, setItemY] = useState(y);
     const [itemAngle, setItemAngle] = useState(0);
 
     const onItemClick = (event: React.MouseEvent) => {
@@ -41,25 +47,38 @@ const CanvasItem = ({
         }
     }
 
-    const updateItemDimension = (element: HTMLDivElement) => {
-        if (width === 0 && height === 0) {
-            if (element.children[0]) {
-                const boundingClientRect = element.children[0].getBoundingClientRect();
+    const updateItemDimension = (rootElement: HTMLDivElement, contentElement: HTMLDivElement) => {
+        const defaultItemWidth = 200;
+        const defaultItemHeight = 200;
+        let itemCalculatedWidth = itemWidth;
+        let itemCalculatedHeight = itemHeight;
 
-                setItemWidth(boundingClientRect.width);
-                setItemHeight(boundingClientRect.height);
-            } else {
-                setItemWidth(100);
-                setItemHeight(100);
+        if (itemCalculatedWidth === 0 && itemCalculatedHeight === 0) {
+            if (contentElement && contentElement.children[0]) {
+                const boundingClientRect = contentElement.children[0].getBoundingClientRect();
+    
+                itemCalculatedWidth = boundingClientRect.right - boundingClientRect.left;
+                itemCalculatedHeight = boundingClientRect.bottom - boundingClientRect.top;
             }
-        } else {
-            setItemWidth(width);
-            setItemHeight(height);
+    
+            itemCalculatedWidth = itemWidth === 0 ? defaultItemWidth : itemWidth;
+            itemCalculatedHeight = itemHeight === 0 ? defaultItemHeight : itemHeight;
+        }
+
+        if (x === 0 && y === 0) {
+            const canvasRoot = rootElement.parentElement;
+
+            if (canvasRoot?.classList.contains('canvas-root')) {
+                const canvasClientRect = canvasRoot.getBoundingClientRect();
+
+                setItemX((canvasClientRect.width - itemWidth) / 2);
+                setItemY((canvasClientRect.height - itemHeight) / 2);
+            }
         }
 
         if(itemAngle === 0)
         {
-            if (element.children[0]){
+            if (contentElement){
                 setItemAngle(rotation)
 
             } else {
@@ -69,38 +88,38 @@ const CanvasItem = ({
             setItemAngle(rotation)
         }
 
-        if (!init) {
-            setInit(true);
-        }
+        setItemWidth(itemCalculatedWidth);
+        setItemHeight(itemCalculatedHeight);
     }
 
     
     const getItemDimensionStyle = () => {
-        if (init) {
-            return {
-                width: `${itemWidth}px`,
-                height: `${itemHeight}px`,
-                transform: `translate(${x}px, ${y}px) rotate(${itemAngle}deg)`,
-            }
+        return {
+            width: `${itemWidth}px`,
+            height: autoHeight ? 'auto' : `${itemHeight}px`,
+            transform: `translate(${itemX}px, ${itemY}px) rotate(${itemAngle}deg)`,
         }
     }
     
     const getClassNames = () => {
         return classNames({
             'canvas-item': true,
-            'canvas-item-active': !locked,
-            'init': init,
+            'canvas-item-draggable': !locked && !lockPosition,
+            'canvas-item-resizable': !locked,
+            'init': true,
             'active': active
         })
     }
 
     useEffect(() => {
-        if (itemRef.current) {
-            updateItemDimension(itemRef.current);
+        if (itemRef.current && itemContentRef.current) {
+            updateItemDimension(itemRef.current, itemContentRef.current);
         }
     }, [
         width,
-        height
+        height,
+        itemRef.current,
+        itemContentRef.current
     ])
 
     return (
@@ -108,24 +127,31 @@ const CanvasItem = ({
             ref={itemRef}
             className={getClassNames()}
             data-id={id}
-            data-x={x}
-            data-y={y}
-            data-rotate={rotation}
-            onClick={onItemClick}
+            data-x={itemX}
+            data-y={itemY}
+            data-autoheight={autoHeight}
+            data-rotate={itemAngle}
+            onMouseDown={onItemClick}
             style={getItemDimensionStyle()}>
-                <div className='canvas-item__content'>
+                <div className='canvas-item__content' ref={itemContentRef}>
                     { children }
                 </div>
                 { !locked && (
                     <div className='canvas-item__handles'>
-                        <div className='resize-handle-bar resize-top'>
-                            <div className='resize-handle resize-handle-topleft' />
-                            <div className='resize-handle resize-handle-topright' />
-                        </div>
-                        <div className='resize-handle-bar resize-bottom'>
-                            <div className='resize-handle resize-handle-bottomleft' />
-                            <div className='resize-handle resize-handle-bottomright' />
-                        </div>
+                        { !autoHeight && (
+                            <React.Fragment>
+                                <div className='resize-handle-bar resize-top'>
+                                    <div className='resize-handle resize-handle-topleft' />
+                                    <div className='resize-handle resize-handle-topright' />
+                                </div>
+
+                                <div className='resize-handle-bar resize-bottom'>
+                                    <div className='resize-handle resize-handle-bottomleft' />
+                                    <div className='resize-handle resize-handle-bottomright' />
+                                </div>
+                            </React.Fragment>
+                        )}
+                        
                         <div className='resize-handle-bar resize-left'>
                             <div className='resize-handle resize-handle-left' />
                         </div>

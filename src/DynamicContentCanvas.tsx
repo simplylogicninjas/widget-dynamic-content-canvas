@@ -24,11 +24,14 @@ export function DynamicContentCanvas({
     itemHeight,
     itemXpos,
     itemYpos,
-    itemAngle
+    itemAngle,
+    itemAutoHeight,
+    itemLockPosition
 }: DynamicContentCanvasContainerProps): ReactElement {
     const items = [...data.items ?? []];
     const lockedItems = [...lockedItemsData.items ?? []];
     const [activeItemId, setActiveItemId] = useState<string | number | undefined>();
+    const isInteractingRef = useRef(false);
     const savedIdRef = useRef<EditableValue<Big>>();
     const savedWidthRef = useRef<EditableValue<Big>>();
     const savedHeightRef = useRef<EditableValue<Big>>();
@@ -65,12 +68,13 @@ export function DynamicContentCanvas({
     }
 
     const onRootClick = () => {
-        setActiveItemId(undefined);
+        if (!isInteractingRef.current) {
+            setActiveItemId(undefined);
+        }
     }
 
     const initInteractable = () => {
-        interactable.current = interact('.canvas-item-active')
-
+        interactable.current = interact('.canvas-item-resizable')
             .resizable({
                 // resize from all edges and corners
                 edges: {
@@ -81,11 +85,13 @@ export function DynamicContentCanvas({
                 },
 
                 listeners: {
+                    start: () => isInteractingRef.current = true,
                     move: onResizeMove,
                     end: (event) => {
                         const target = event.target as HTMLElement;
 
                         saveItemDimension(target);
+                        isInteractingRef.current = false;
                     }
                 },
                 modifiers: [
@@ -100,20 +106,24 @@ export function DynamicContentCanvas({
                 }) 
                 ],
             })
-            
+
+
+        interactable.current = interact('.canvas-item-draggable')
             .draggable ({
                 inertia: true,
                 listeners: {
+                    start: () => isInteractingRef.current = true,
                     move: onDragMove,
                     end: (event) => {
                         const target = event.target as HTMLElement;
 
                         saveItemDimension(target);
+                        isInteractingRef.current = false;
                     }
             }
             })
 
-            rotateInteractable.current = interact('.rotate-handle')
+        rotateInteractable.current = interact('.rotate-handle')
             .draggable({
                 listeners: {
                     start: onDragRotateStart,
@@ -176,7 +186,7 @@ export function DynamicContentCanvas({
                         angle.status === ValueStatus.Available
                     );
 
-                    const itemIdValue = itemID.value!.toNumber();
+                    const itemIdValue = new Big(itemID.value!).toNumber();
 
                     return (
                         renderCanvasItem
@@ -191,6 +201,8 @@ export function DynamicContentCanvas({
                             x={xPos.value!.toNumber()}
                             y={yPos.value!.toNumber()}
                             rotation={angle.value!.toNumber()}
+                            autoHeight={itemAutoHeight.get(item).value ?? false}
+                            lockPosition={itemLockPosition.get(item).value ?? false}
                             onActivate={id => onItemActive(id)}
                         >{ content?.get(item) }</CanvasItem>
                         :

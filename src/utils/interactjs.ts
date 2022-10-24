@@ -1,12 +1,16 @@
 export const onResizeMove = (event: any) => {
     const target = event.target as HTMLElement;
+    const hasAutoHeight = target.getAttribute('data-autoheight');
 
     let x = (parseFloat(target.getAttribute('data-x') as string) || 0);
     let y = (parseFloat(target.getAttribute('data-y') as string) || 0);
 
     // update the element's style
     target.style.width = event.rect.width + 'px'
-    target.style.height = event.rect.height + 'px'
+
+    if (!hasAutoHeight) {
+        target.style.height = event.rect.height + 'px'
+    }
 
     x += event.deltaRect.left;
     y += event.deltaRect.top;
