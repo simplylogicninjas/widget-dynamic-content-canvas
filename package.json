@@ -29,10 +29,27 @@
     "@mendix/pluggable-widgets-tools": "^9.0.0",
     "@types/big.js": "^6.0.2",
     "@types/react": "~17.0.1",
-    "@types/react-dom": "~17.0.1"
+    "@types/react-dom": "~17.0.1",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.2.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-webpack-plugin": "^0.1.2"
   },
   "dependencies": {
     "classnames": "^2.2.6",
-    "interactjs": "^1.10.17"
-  }
+    "interactjs": "^1.10.17",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simplylogicninjas/widget-dynamic-content-canvas.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/simplylogicninjas/widget-dynamic-content-canvas/issues"
+  },
+  "homepage": "https://github.com/simplylogicninjas/widget-dynamic-content-canvas#readme"
 }

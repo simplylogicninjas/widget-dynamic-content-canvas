@@ -37,7 +37,6 @@ const CanvasItem = ({
     const [itemHeight, setItemHeight] = useState(height);
     const [itemX, setItemX] = useState(x);
     const [itemY, setItemY] = useState(y);
-    const [itemAngle, setItemAngle] = useState(0);
 
     const onItemClick = (event: React.MouseEvent) => {
         event.stopPropagation();
@@ -76,28 +75,15 @@ const CanvasItem = ({
             }
         }
 
-        if(itemAngle === 0)
-        {
-            if (contentElement){
-                setItemAngle(rotation)
-
-            } else {
-                setItemAngle(0);
-            }
-        } else {
-            setItemAngle(rotation)
-        }
-
         setItemWidth(itemCalculatedWidth);
         setItemHeight(itemCalculatedHeight);
     }
 
-    
     const getItemDimensionStyle = () => {
         return {
             width: `${itemWidth}px`,
             height: autoHeight ? 'auto' : `${itemHeight}px`,
-            transform: `translate(${itemX}px, ${itemY}px) rotate(${itemAngle}deg)`,
+            transform: `translate(${itemX}px, ${itemY}px) rotate(${rotation}deg)`
         }
     }
     
@@ -130,7 +116,7 @@ const CanvasItem = ({
             data-x={itemX}
             data-y={itemY}
             data-autoheight={autoHeight}
-            data-rotate={itemAngle}
+            data-rotate={rotation}
             onMouseDown={onItemClick}
             style={getItemDimensionStyle()}>
                 <div className='canvas-item__content' ref={itemContentRef}>

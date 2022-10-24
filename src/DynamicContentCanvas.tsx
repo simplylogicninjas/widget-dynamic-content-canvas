@@ -50,8 +50,7 @@ export function DynamicContentCanvas({
             const itemY = (parseFloat(target.getAttribute('data-y') as string) || 0);
             const itemWidth = (parseFloat(target.style.width as string) || 0);
             const itemHeight = (parseFloat(target.style.height as string) || 0);
-            const itemAngle = (parseFloat(target.style.rotate as string) || 0);            
-            
+            const itemAngle = (parseFloat(target.getAttribute('data-rotate') as string) || 0);
             savedID.setValue(new Big(id));
             savedXposRef.current?.setValue(new Big(itemX.toFixed(8)));
             savedYposRef.current?.setValue(new Big(itemY.toFixed(8)));
