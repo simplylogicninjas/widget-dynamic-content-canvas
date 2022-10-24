@@ -3,6 +3,7 @@ export const onResizeMove = (event: any) => {
 
     let x = (parseFloat(target.getAttribute('data-x') as string) || 0);
     let y = (parseFloat(target.getAttribute('data-y') as string) || 0);
+    let angle = target.getAttribute('data-rotate');
 
     // update the element's style
     target.style.width = event.rect.width + 'px'
@@ -11,9 +12,9 @@ export const onResizeMove = (event: any) => {
     x += event.deltaRect.left;
     y += event.deltaRect.top;
 
-    target.style.transform = `translate(${x}px, ${y}px)`;
     target.setAttribute('data-x', `${x}`);
     target.setAttribute('data-y', `${y}`);
+    target.style.transform = 'translate(' + x + 'px, ' + y + 'px) rotate(' + angle + 'rad' + ')'
 }
 
 export const onDragMove = (event: any) => {
@@ -21,11 +22,12 @@ export const onDragMove = (event: any) => {
 
     let x = (parseFloat(target.getAttribute('data-x') as string) || 0);
     let y = (parseFloat(target.getAttribute('data-y') as string) || 0);
+    let angle = target.getAttribute('data-rotate');
 
     x += event.dx;
     y += event.dy;
 
-    target.style.transform = `translate(${x}px, ${y}px)`;
+    target.style.transform = 'translate(' + x + 'px, ' + y + 'px) rotate(' + angle + 'rad' + ')'
     target.setAttribute('data-x', `${x}`);
     target.setAttribute('data-y', `${y}`);
 }
