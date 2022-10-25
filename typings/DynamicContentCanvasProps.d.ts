@@ -19,7 +19,6 @@ export interface DynamicContentCanvasContainerProps {
     savedXpos: EditableValue<Big>;
     savedYpos: EditableValue<Big>;
     savedAngle: EditableValue<Big>;
-    savedAction?: ActionValue;
     data: ListValue;
     content?: ListWidgetValue;
     itemName: ListAttributeValue<string>;
@@ -33,6 +32,7 @@ export interface DynamicContentCanvasContainerProps {
     itemAutoHeight: ListExpressionValue<boolean>;
     lockedItemsData: ListValue;
     clickedItemID: EditableValue<Big>;
+    savedAction?: ActionValue;
 }
 
 export interface DynamicContentCanvasPreviewProps {
@@ -47,7 +47,6 @@ export interface DynamicContentCanvasPreviewProps {
     savedXpos: string;
     savedYpos: string;
     savedAngle: string;
-    savedAction: {} | null;
     data: {} | { type: string } | null;
     content: { widgetCount: number; renderer: ComponentType<{ caption?: string }> };
     itemName: string;
@@ -61,5 +60,6 @@ export interface DynamicContentCanvasPreviewProps {
     itemAutoHeight: string;
     lockedItemsData: {} | { type: string } | null;
     clickedItemID: string;
+    savedAction: {} | null;
     clickedItemAction: {} | null;
 }

@@ -47,6 +47,7 @@ export const onDragRotateStart = (event: any) => {
         canvasItem.setAttribute('data-center-x', `${left + width / 2}`);
         canvasItem.setAttribute('data-center-y', `${top + height / 2}`);
         canvasItem.setAttribute('data-rotate', `${getDragAngle(canvasItem, event.clientY, event.clientX)}`)
+        
     }
 }
 

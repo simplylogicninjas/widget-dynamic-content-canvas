@@ -108,6 +108,15 @@ const CanvasItem = ({
         itemContentRef.current
     ])
 
+    /*
+    const SnapLines = (rootElement:HTMLDivElement) => {
+        const canvasroot = rootElement.parentElement
+        return(
+            <div></div>
+        )
+    }
+    */
+
     return (
         <div
             ref={itemRef}

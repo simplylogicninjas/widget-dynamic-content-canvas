@@ -53,10 +53,6 @@
                     <attributeType name="Decimal" />
                 </attributeTypes>
             </property>
-            <property key="savedAction" type="action">
-                <caption>On dimension change</caption>
-                <description>Action to be performed when dimension of an item changed</description>
-            </property>
         </propertyGroup>
         <propertyGroup caption="Data Source">
             <propertyGroup caption="Items">
@@ -144,12 +140,17 @@
                         <attributeType name="Long" />
                     </attributeTypes>
                 </property>
+            </propertyGroup>
+            <propertyGroup caption="On item change">
+                <property key="savedAction" type="action">
+                    <caption>On dimension change</caption>
+                    <description>Action to be performed when dimension of an item changed</description>
+                </property>
                 <property key="clickedItemAction" type="action">
                     <caption>On item click action</caption>
                     <description />
                 </property>
             </propertyGroup>
-
         </propertyGroup>
     </properties>
 </widget>

@@ -1,4 +1,4 @@
-import React, { ReactElement, createElement, useEffect, useRef, useState } from "react";
+import React, { ReactElement, createElement, useEffect, useRef, useState, createRef } from "react";
 import { DynamicContentCanvasContainerProps } from "../typings/DynamicContentCanvasProps";
 import "./ui/DynamicContentCanvas.css";
 import interact from 'interactjs';
@@ -6,7 +6,6 @@ import Big from "big.js";
 import { EditableValue, ActionValue, ValueStatus } from "mendix";
 import CanvasItem from "./components/CanvasItem";
 import { onDragMove, onDragRotateEnd, onDragRotateMove, onDragRotateStart, onResizeMove } from "./utils/interactjs";
-
 export function DynamicContentCanvas({
     data,
     lockedItemsData,
@@ -42,6 +41,12 @@ export function DynamicContentCanvas({
     const canSaveItemDimension = useRef<boolean>(false);
     const interactable = useRef<any>();
     const rotateInteractable = useRef<any>();
+
+    const canvasRootRef = createRef<HTMLDivElement>();
+    const canvasRootBoundingRect = useRef<DOMRect>();
+    const currentItemRef = useRef<HTMLDivElement>();
+    const currentItemBoundingRect = useRef<DOMRect>();
+
     const saveItemDimension = (target: HTMLElement) => {
         const id = target.getAttribute('data-id');
 
@@ -106,16 +111,65 @@ export function DynamicContentCanvas({
                 ],
             })
 
+        let dynamicTargets: {
+            x?: number;
+            y?: number;
+            range: number;
+        }[] = [];
 
         interactable.current = interact('.canvas-item-draggable')
             .draggable ({
                 inertia: true,
+                modifiers: [
+                    interact.modifiers.snap({
+                        targets: dynamicTargets,
+                        relativePoints: [{
+                            x: 0,
+                            y: 0
+                        }]
+                    })
+                ],
+
                 listeners: {
-                    start: () => isInteractingRef.current = true,
+                    start: (event) => {
+                        const canvasRoot = document.querySelector('.canvas-root');
+
+                        let element = event.target;
+                        let element_width  = (element.offsetWidth);
+                        let element_height = (element.offsetHeight);
+                        let element_half_width = (element_width / 2);
+                        let element_half_height = (element_height / 2);
+                        if (canvasRootBoundingRect.current){
+                            let x_axis = canvasRootBoundingRect.current.x / 2;
+                            let y_axis = canvasRootBoundingRect.current.y / 2;
+
+                            dynamicTargets.push({x: x_axis, range:20})
+                            dynamicTargets.push({x: (x_axis - element_half_width), range: 20});
+                            dynamicTargets.push({x: (x_axis - element_width), range:20});
+
+                            dynamicTargets.push({y: y_axis, range:20});
+                            dynamicTargets.push({y: (y_axis - element_half_height), range: 20});
+                            dynamicTargets.push({y: (y_axis - element_height), range:20});
+
+                            dynamicTargets.push({x: x_axis, y: y_axis, range: 20})
+                        }
+
+                        isInteractingRef.current = true;
+                        currentItemRef.current = event.target as HTMLDivElement;
+
+
+                        if (currentItemRef.current) {
+                            currentItemBoundingRect.current = currentItemRef.current.getBoundingClientRect();
+                        }
+
+                        if (canvasRoot) {
+                            canvasRootBoundingRect.current = canvasRoot.getBoundingClientRect();
+                        }
+                    },
                     move: onDragMove,
                     end: (event) => {
                         const target = event.target as HTMLElement;
-
+                        dynamicTargets.length = 0;
                         saveItemDimension(target);
                         isInteractingRef.current = false;
                     }
@@ -165,7 +219,7 @@ export function DynamicContentCanvas({
   ])
     
     return (
-        <div className='canvas-root' onClick={() => onRootClick()}>
+        <div className='canvas-root' onClick={() => onRootClick()} ref={canvasRootRef}>
             { 
                 items.map(item => {
                     const itemID = itemId.get(item);
