@@ -8,6 +8,11 @@ Place your custom CSS here
     overflow: hidden;
 }
 
+.canvas-line {
+    position: absolute;
+    background: rgba(0, 0, 0, .5);
+}
+
 .canvas-item {
     position: relative;
     opacity: 0;

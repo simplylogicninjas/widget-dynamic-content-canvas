@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React, { createElement, createRef, useEffect, useState } from "react";
+import React, { createElement, createRef, useEffect, useRef, useState } from "react";
 import RotateIcon from "./RotateIcon";
 
 interface Props {
@@ -33,10 +33,11 @@ const CanvasItem = ({
 }: Props) => {
     const itemRef = createRef<HTMLDivElement>();
     const itemContentRef = createRef<HTMLDivElement>();
+    const updateStyleRef = useRef(true);
     const [itemWidth, setItemWidth] = useState(width);
     const [itemHeight, setItemHeight] = useState(height);
-    const [itemX, setItemX] = useState(x);
-    const [itemY, setItemY] = useState(y);
+    const [itemX, setItemX] = useState<number>(x);
+    const [itemY, setItemY] = useState<number>(y);
 
     const onItemClick = (event: React.MouseEvent) => {
         event.stopPropagation();
@@ -51,6 +52,8 @@ const CanvasItem = ({
         const defaultItemHeight = 200;
         let itemCalculatedWidth = itemWidth;
         let itemCalculatedHeight = itemHeight;
+
+        updateStyleRef.current = true;
 
         if (itemCalculatedWidth === 0 && itemCalculatedHeight === 0) {
             if (contentElement && contentElement.children[0]) {
@@ -77,15 +80,17 @@ const CanvasItem = ({
 
         setItemWidth(itemCalculatedWidth);
         setItemHeight(itemCalculatedHeight);
+
     }
 
+    
     const getItemDimensionStyle = () => {
         return {
             width: `${itemWidth}px`,
             height: autoHeight ? 'auto' : `${itemHeight}px`,
-            transform: `translate(${itemX}px, ${itemY}px) rotate(${rotation}deg)`
+            transform: `translate(${itemX}px, ${itemY}px) rotate(${rotation}rad)`
         }
-    }
+    };
     
     const getClassNames = () => {
         return classNames({
@@ -121,13 +126,14 @@ const CanvasItem = ({
         <div
             ref={itemRef}
             className={getClassNames()}
+            id={`canvas-item-${id}`}
             data-id={id}
             data-x={itemX}
             data-y={itemY}
             data-autoheight={autoHeight}
             data-rotate={rotation}
-            onMouseDown={onItemClick}
-            style={getItemDimensionStyle()}>
+            style={getItemDimensionStyle()}
+            onMouseDown={onItemClick}>
                 <div className='canvas-item__content' ref={itemContentRef}>
                     { children }
                 </div>
