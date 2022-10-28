@@ -32,7 +32,9 @@ export class InteractModule {
                 interact.modifiers.snap({
                     targets: this.snapTargets,
                     relativePoints: [
-                        {x: 0, y: 0}
+                        {x: 0, y: 0},
+                        {x: .5, y: .5},
+                        {x: 1, y: 1}
                     ]
                 })
             ],
