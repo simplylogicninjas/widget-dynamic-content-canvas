@@ -4,7 +4,7 @@
  * @author Mendix UI Content Team
  */
 import { ComponentType, CSSProperties } from "react";
-import { ActionValue, EditableValue, ListValue, ListAttributeValue, ListExpressionValue, ListWidgetValue } from "mendix";
+import { ActionValue, DynamicValue, EditableValue, ListValue, ListAttributeValue, ListExpressionValue, ListWidgetValue } from "mendix";
 import { Big } from "big.js";
 
 export interface DynamicContentCanvasContainerProps {
@@ -12,26 +12,30 @@ export interface DynamicContentCanvasContainerProps {
     class: string;
     style?: CSSProperties;
     tabIndex?: number;
-    sampleText: string;
-    savedID: EditableValue<Big>;
-    savedWidth: EditableValue<Big>;
-    savedHeight: EditableValue<Big>;
-    savedXpos: EditableValue<Big>;
-    savedYpos: EditableValue<Big>;
-    savedAngle: EditableValue<Big>;
+    widgetId?: DynamicValue<string>;
+    savedID?: EditableValue<Big>;
+    activeID?: EditableValue<Big>;
+    savedWidth?: EditableValue<Big>;
+    savedHeight?: EditableValue<Big>;
+    savedXpos?: EditableValue<Big>;
+    savedYpos?: EditableValue<Big>;
+    savedAngle?: EditableValue<Big>;
     data: ListValue;
     content?: ListWidgetValue;
-    itemName: ListAttributeValue<string>;
+    popoverContent?: ListWidgetValue;
     itemId: ListAttributeValue<Big>;
     itemWidth: ListAttributeValue<Big>;
     itemHeight: ListAttributeValue<Big>;
     itemXpos: ListAttributeValue<Big>;
     itemYpos: ListAttributeValue<Big>;
+    itemZIndex: ListAttributeValue<Big>;
     itemAngle: ListAttributeValue<Big>;
     itemLockPosition: ListExpressionValue<boolean>;
     itemAutoHeight: ListExpressionValue<boolean>;
+    itemPreserveRatio: ListExpressionValue<boolean>;
     lockedItemsData: ListValue;
-    clickedItemID: EditableValue<Big>;
+    clickedItemID?: EditableValue<Big>;
+    presentationClickAction?: ActionValue;
     savedAction?: ActionValue;
 }
 
@@ -40,8 +44,9 @@ export interface DynamicContentCanvasPreviewProps {
     style: string;
     styleObject?: CSSProperties;
     readOnly: boolean;
-    sampleText: string;
+    widgetId: string;
     savedID: string;
+    activeID: string;
     savedWidth: string;
     savedHeight: string;
     savedXpos: string;
@@ -49,17 +54,20 @@ export interface DynamicContentCanvasPreviewProps {
     savedAngle: string;
     data: {} | { type: string } | null;
     content: { widgetCount: number; renderer: ComponentType<{ caption?: string }> };
-    itemName: string;
+    popoverContent: { widgetCount: number; renderer: ComponentType<{ caption?: string }> };
     itemId: string;
     itemWidth: string;
     itemHeight: string;
     itemXpos: string;
     itemYpos: string;
+    itemZIndex: string;
     itemAngle: string;
     itemLockPosition: string;
     itemAutoHeight: string;
+    itemPreserveRatio: string;
     lockedItemsData: {} | { type: string } | null;
     clickedItemID: string;
-    savedAction: {} | null;
     clickedItemAction: {} | null;
+    presentationClickAction: {} | null;
+    savedAction: {} | null;
 }

@@ -1,81 +1,145 @@
 import React, { createElement, useEffect, useRef, useState, ReactNode } from "react"
-import { InteractModule } from "src/modules/interact";
-import { listUnique } from "src/utils/utils";
+import { InteractModule, SnapLineEvent } from "src/modules/interact";
 import CanvasItem from "./CanvasItem";
 import CanvasLine from "./CanvasLine";
+import { listUnique } from "src/utils/utils";
 
 export interface Item {
-    id: string | number;
+    id: string;
+    itemId: string | number;
     x: number;
     y: number;
+    z: number;
+    active?: boolean;
     width: number;
     height: number;
     rotation: number;
     autoHeight: boolean;
     lockPosition: boolean;
+    locked: boolean;
+    preserveAspectRatio: boolean;
     content: ReactNode;
+    popoverContent?: ReactNode;
+}
+
+export interface InteractItem extends Item {
+    top: number;
+    left: number;
+    bottom: number;
+    right: number;
 }
 
 interface Props {
+    id: string;
     items: Item[];
+    activeItemID?: string | undefined;
     onItemActivate: (id: string | number) => void;
+    onSurfaceClick: () => void;
     onDimensionChange: (target: HTMLElement) => void;
 }
 
 const CanvasInteract = ({
+    id,
     items,
+    activeItemID,
     onItemActivate,
+    onSurfaceClick,
     onDimensionChange
 }: Props) => {
-    const [activeItemId, setActiveItemId] = useState<string | number | undefined>();
     const isInteractingRef = useRef(false);
     const currentItemsRef = useRef<Item[]>([]);
-    const interactModule = useRef<InteractModule>(new InteractModule(onDimensionChange));
-
+    const currentItemActiveRef = useRef<string | number>(-1);
+    const [snapLine, setSnapLine] = useState<SnapLineEvent>();
+    const [dragActive, setDragActive] = useState(false);
+    
     const onItemActive = (id: string | number) => {
-        setActiveItemId(id);
         onItemActivate(id);
+        currentItemActiveRef.current = id;
     }
 
-    const onRootClick = () => {
-        if (!isInteractingRef.current) {
-            setActiveItemId(undefined);
-        }
+    const onSnapInteract = (event: SnapLineEvent) => {
+        setSnapLine({...event});
     }
+
+    const onStartInteract = () => {
+        isInteractingRef.current = true;
+    }
+
+    const onEndInteract = () => {
+        isInteractingRef.current = false;
+        // setSnapLine(undefined);
+    }
+
+    const onDragStart = () => {
+        setDragActive(true);
+    }
+
+    const onDragEnd = () => {
+        setDragActive(false);
+        // setSnapLine(undefined);
+    }
+
+    const interactModule = useRef<InteractModule>(
+        new InteractModule(
+            id,
+            onDimensionChange,
+            onSnapInteract,
+            onStartInteract,
+            onEndInteract,
+            onDragStart,
+            onDragEnd
+        )
+    );
 
     useEffect(() => {
-        interactModule.current.init();
-    }, []);
+        if (id) {
+            interactModule.current.init(id);
+        }
+
+        return (() => {
+            currentItemsRef.current = [];
+
+            if (interactModule.current) {
+                interactModule.current.destroy();
+            }
+        })
+    }, [id]);
 
     useEffect(() => {
         interactModule.current.syncItems(items);
         currentItemsRef.current = items;
-    }, [listUnique(currentItemsRef.current, items)])
+    }, [listUnique(items, currentItemsRef.current)])
 
     return (
-        <div className='canvas-root' onClick={onRootClick}>
+        <div className={`canvas-root ${id}`}>
+            <div className={'canvas-root__items'}>
             {
                 items.map(item => (
                     <CanvasItem
                         key={item.id}
+                        active={activeItemID === item.itemId}
+                        canActivate={activeItemID === '' || activeItemID === '0'}
                         onActivate={onItemActive}
-                        active={activeItemId === item.id}
-                        locked={false}
+                        dragInteractActive={dragActive}
                         {...item}
                     >
                         {item.content}
                     </CanvasItem>
                 ))
             }
-
+            </div>
+            <div className={'canvas-root__surface'} onClick={onSurfaceClick}>
             {
-                items.map(item => (
+                snapLine !== undefined ? (
                     <React.Fragment>
-                        <CanvasLine x={item.x} />
-                        <CanvasLine y={item.y} />
+                        <CanvasLine
+                        snapLine={snapLine}
+                        canvasRootRect={interactModule.current.canvasRootRect}
+                        />
                     </React.Fragment>
-                ))
+                ) : undefined
             }
+            </div>
         </div>
     )
 }

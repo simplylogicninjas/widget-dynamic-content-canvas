@@ -5,44 +5,124 @@ Place your custom CSS here
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: hidden;
+}
+
+.canvas-root__items {
+    z-index: 10;
+    pointer-events: none;
+}
+
+.canvas-root__items,
+.canvas-root__surface {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 .canvas-line {
     position: absolute;
-    background: rgba(0, 0, 0, .5);
+    background: rgba(0, 0, 0, .4);
+}
+
+.canvas-line--y {
+    height: 2px;
+}
+
+.canvas-line--x {
+    width: 2px;
+}
+
+.canvas-line--item {
+    background: rgba(0, 0, 0, .6);
+}
+
+.canvas-line--current-item {
+    background: var(--handle-color, rgba(140, 47, 155, .7));
 }
 
 .canvas-item {
-    position: relative;
     opacity: 0;
     position: absolute;
-    transform: var(--translate);
     touch-action: none;
     display: flex;
     flex-direction: column;
     transform-origin: center center;
+    z-index: auto;
+    cursor: default;
+    pointer-events: none;
 }
 
-.canvas-item:hover .canvas-item__handles {
-    opacity: 1;
+.canvas-item .canvas-item__content {
+    pointer-events: none;
+}
+
+.canvas-item.canvas-item-canActivate {
+    cursor: pointer;
+}
+
+.canvas-item.canvas-item-canActivate .canvas-item__content,
+.canvas-item.active .canvas-item__content {
     pointer-events: all;
+}
+
+.canvas-item.canvas-item-canActivate,
+.canvas-item.active {
+    pointer-events: all;
+}
+
+.canvas-item-locked {
+    pointer-events: none;
+    user-select: none;
+    cursor: default;
+}
+
+.canvas-item-locked * {
+    pointer-events: none;
+    user-select: none;
+    cursor: default;
+}
+
+.canvas-item.active.canvas-item--dragging {
+    --handle-color: rgba(140, 47, 155, .5);
+}
+.canvas-item--dragging .resize-handle {
+    opacity: 0;
+}
+
+.canvas-item--dragging .rotate-handle {
+    opacity: 0;
+}
+
+.canvas-item.canvas-item-canActivate:not(.canvas-item-locked):hover .canvas-item__handles {
+    opacity: 1;
+}
+
+.canvas-item.active .canvas-item__handles {
+    --handle-color: rgba(140, 47, 155, .7);
+}
+
+.canvas-item:not(.active) .resize-handle,
+.canvas-item.canvas-item-lockPosition .resize-handle {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
 }
 
 .canvas-item.active .canvas-item__handles {
     opacity: 1;
-    pointer-events: all;
 }
 
 .canvas-item__content {
     position: relative;
+    transform: var(--translate);
     display: flex;
     flex-direction: column;
     flex: 1;
-    height: 100%;
+    height: auto;
     overflow: hidden;
-    padding: 8px;
-    z-index: 10;
+    pointer-events: all;
 }
 
 .canvas-item__handles {
@@ -54,17 +134,22 @@ Place your custom CSS here
     opacity: 0;
     pointer-events: none;
     transition: opacity .15s ease-in-out;
-    border: 2px solid purple;
+    border: 2px solid var(--handle-color, rgba(0, 0, 0, .5));
+    border-radius: 2px;
+    z-index: 250;
 }
 
 .resize-handle-bar {
     position: absolute;
+    pointer-events: none;
+    pointer-events: all;
 }
 
 .resize-handle-bar::before {
     content: "";
     display: block;
     position: absolute;
+    pointer-events: none;
 }
 
 .resize-top {
@@ -72,6 +157,8 @@ Place your custom CSS here
     left: 0;
     right: 0;
     height: 8px;
+    pointer-events: all;
+    transform: translateY(-50%);
 }
 
 .resize-bottom {
@@ -79,6 +166,8 @@ Place your custom CSS here
     left: 0;
     right: 0;
     height: 8px;
+    pointer-events: all;
+    transform: translateY(50%);
 }
 
 .resize-left {
@@ -86,6 +175,8 @@ Place your custom CSS here
     top: 0;
     bottom: 0;
     width: 8px;
+    pointer-events: all;
+    transform: translateX(-50%);
 }
 
 .resize-right {
@@ -93,6 +184,8 @@ Place your custom CSS here
     top: 0;
     bottom: 0;
     width: 8px;
+    pointer-events: all;
+    transform: translateX(50%);
 }
 
 .resize-top::before,
@@ -102,6 +195,7 @@ Place your custom CSS here
     top: 50%;
     height: 2px;
     transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .resize-left::before,
@@ -111,6 +205,7 @@ Place your custom CSS here
     left: 50%;
     width: 2px;
     transform: translateX(-50%);
+    pointer-events: none;
 }
 
 .resize-handle {
@@ -119,36 +214,43 @@ Place your custom CSS here
     height: 10px;
     border-radius: 10px;
     background: purple;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+    pointer-events: all;
 }
 
 .resize-handle-topleft {
     top: 0;
     left: 0;
+    transform: translate(-50%, -25%);
 }
 
 .resize-handle-topright {
     top: 0;
     right: 0;
+    transform: translate(50%, -25%);
 }
 
 .resize-handle-bottomleft {
     bottom: 0;
     left: 0;
+    transform: translate(-50%, 25%);
 }
 
 .resize-handle-bottomright {
     bottom: 0;
     right: 0;
+    transform: translate(50%, 25%);
 }
 
 .resize-handle-left {
     top: 50%;
+    transform: translate(-25%, -50%);
 }
 
 .resize-handle-right {
     top: 50%;
     right: 0;
+    transform: translate(25%, -50%)
 }
 
 .rotate-handle {
@@ -156,7 +258,6 @@ Place your custom CSS here
     display: inline-block;
     top: 0;
     left: 50%;
-    transform: translate(-50%, -100%);
 }
 
 .canvas-item.init {

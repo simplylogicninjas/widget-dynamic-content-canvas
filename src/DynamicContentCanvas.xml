@@ -5,48 +5,56 @@
     <icon />
     <properties>
         <propertyGroup caption="General">
-            <property key="sampleText" type="string" required="false">
-                <caption>Default value</caption>
-                <description>Sample text input</description>
+            <property key="widgetId" type="expression" required="false">
+                <caption>Widget ID</caption>
+                <description />
+                <returnType type="String" />
             </property>
         </propertyGroup>
         <propertyGroup caption="Saved dimension">
-            <property key="savedID" type="attribute">
+            <property key="savedID" type="attribute" required="false">
                 <caption>ID</caption>
                 <description>ID of the item</description>
                 <attributeTypes>
                     <attributeType name="Long" />
                 </attributeTypes>
             </property>
-            <property key="savedWidth" type="attribute">
+            <property key="activeID" type="attribute" required="false">
+                <caption>Active Item ID</caption>
+                <description>ID of the item</description>
+                <attributeTypes>
+                    <attributeType name="Long" />
+                </attributeTypes>
+            </property>
+            <property key="savedWidth" type="attribute" required="false">
                 <caption>Width</caption>
                 <description>Width of the item</description>
                 <attributeTypes>
                     <attributeType name="Decimal" />
                 </attributeTypes>
             </property>
-            <property key="savedHeight" type="attribute">
+            <property key="savedHeight" type="attribute" required="false">
                 <caption>Height</caption>
                 <description>Height of the item</description>
                 <attributeTypes>
                     <attributeType name="Decimal" />
                 </attributeTypes>
             </property>
-            <property key="savedXpos" type="attribute">
+            <property key="savedXpos" type="attribute" required="false">
                 <caption>Xpos</caption>
                 <description>Xpos of the item</description>
                 <attributeTypes>
                     <attributeType name="Decimal" />
                 </attributeTypes>
             </property>
-            <property key="savedYpos" type="attribute">
+            <property key="savedYpos" type="attribute" required="false">
                 <caption>Ypos</caption>
                 <description>Ypos of the item</description>
                 <attributeTypes>
                     <attributeType name="Decimal" />
                 </attributeTypes>
             </property>
-            <property key="savedAngle" type="attribute">
+            <property key="savedAngle" type="attribute" required="false">
                 <caption>Angle</caption>
                 <description>Angle of the item</description>
                 <attributeTypes>
@@ -64,12 +72,9 @@
                     <caption>Content</caption>
                     <description>Content of a box</description>
                 </property>
-                <property key="itemName" type="attribute" dataSource="data">
-                    <caption>Name</caption>
-                    <description>Name of the item</description>
-                    <attributeTypes>
-                        <attributeType name="String" />
-                    </attributeTypes>
+                <property key="popoverContent" type="widgets" required="false" dataSource="data">
+                    <caption>Popover content</caption>
+                    <description>Content of a popover</description>
                 </property>
                 <property key="itemId" type="attribute" dataSource="data">
                     <caption>ID</caption>
@@ -106,6 +111,13 @@
                         <attributeType name="Decimal" />
                     </attributeTypes>
                 </property>
+                <property key="itemZIndex" type="attribute" dataSource="data">
+                    <caption>Z-Index</caption>
+                    <description>Z-Index of the item</description>
+                    <attributeTypes>
+                        <attributeType name="Integer" />
+                    </attributeTypes>
+                </property>
                 <property key="itemAngle" type="attribute" dataSource="data">
                     <caption>Angle</caption>
                     <description>Angle of the item</description>
@@ -123,6 +135,11 @@
                     <description>If true, then the height of the item is automatically and cannot be modified</description>
                     <returnType type="Boolean" />
                 </property>
+                <property key="itemPreserveRatio" type="expression" dataSource="data">
+                    <caption>Preserve aspect ratio</caption>
+                    <description>If true, then aspect ratio of the item is preserved when resizing</description>
+                    <returnType type="Boolean" />
+                </property>
             </propertyGroup>
             <propertyGroup caption="Locked items">
                 <property key="lockedItemsData" type="datasource" isList="true" required="true">
@@ -133,22 +150,28 @@
         </propertyGroup>
         <propertyGroup caption="Events">
             <propertyGroup caption="On item click">
-                <property key="clickedItemID" type="attribute" onChange="clickedItemAction">
+                <property key="clickedItemID" type="attribute" onChange="clickedItemAction" required="false">
                     <caption>Clicked item ID</caption>
                     <description />
                     <attributeTypes>
                         <attributeType name="Long" />
                     </attributeTypes>
                 </property>
+                <property key="clickedItemAction" type="action">
+                    <caption>On item click action</caption>
+                    <description />
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="On presentation click">
+                <property key="presentationClickAction" type="action">
+                    <caption>On item click action</caption>
+                    <description />
+                </property>
             </propertyGroup>
             <propertyGroup caption="On item change">
                 <property key="savedAction" type="action">
                     <caption>On dimension change</caption>
                     <description>Action to be performed when dimension of an item changed</description>
-                </property>
-                <property key="clickedItemAction" type="action">
-                    <caption>On item click action</caption>
-                    <description />
                 </property>
             </propertyGroup>
         </propertyGroup>

@@ -1,33 +1,31 @@
 import classNames from "classnames";
 import React, { createElement, createRef, useEffect, useRef, useState } from "react";
-import RotateIcon from "./RotateIcon";
+// import { getRotationMatrix } from "src/utils/rotate-matrix";
+import { Item } from "./CanvasInteract";
 
-interface Props {
-    id: string | number;
-    active: boolean;
-    width: number;
-    height: number;
-    x: number;
-    y: number;
-    rotation: number;
-    locked: boolean;
-    autoHeight: boolean;
-    lockPosition: boolean;
+interface Props extends Item {
+    active?: boolean;
+    canActivate?: boolean;
+    dragInteractActive: boolean;
     children?: React.ReactNode;
     onActivate?: (id: string | number) => void;
 }
 
 const CanvasItem = ({
     locked,
-    id,
+    lockPosition,
+    itemId,
     active,
+    canActivate,
     width,
     height,
     x,
     y,
+    z,
     rotation,
     autoHeight,
-    lockPosition,
+    preserveAspectRatio,
+    dragInteractActive,
     onActivate,
     children
 }: Props) => {
@@ -42,8 +40,10 @@ const CanvasItem = ({
     const onItemClick = (event: React.MouseEvent) => {
         event.stopPropagation();
 
-        if (onActivate) {
-            onActivate(id);
+        if (!locked) {
+            if (canActivate && !active && onActivate) {
+                onActivate(itemId);
+            }
         }
     }
 
@@ -80,7 +80,6 @@ const CanvasItem = ({
 
         setItemWidth(itemCalculatedWidth);
         setItemHeight(itemCalculatedHeight);
-
     }
 
     
@@ -88,15 +87,29 @@ const CanvasItem = ({
         return {
             width: `${itemWidth}px`,
             height: autoHeight ? 'auto' : `${itemHeight}px`,
-            transform: `translate(${itemX}px, ${itemY}px) rotate(${rotation}rad)`
+            left: itemX,
+            top: itemY,
         }
     };
+
+    const getItemContentStyle = () => {
+        // const matrix = getRotationMatrix(rotation);
+
+        return {
+            zIndex: z
+        }
+    }
     
     const getClassNames = () => {
         return classNames({
             'canvas-item': true,
-            'canvas-item-draggable': !locked && !lockPosition,
-            'canvas-item-resizable': !locked,
+            [`canvas-item-${itemId}`]: true,
+            'canvas-item--dragging': dragInteractActive,
+            'canvas-item-canActivate': canActivate,
+            'canvas-item-locked': locked,
+            'canvas-item-lockPosition': lockPosition,
+            'canvas-item-draggable': locked ? false : !lockPosition,
+            'canvas-item-resizable': locked ? false : !lockPosition,
             'init': true,
             'active': active
         })
@@ -113,6 +126,18 @@ const CanvasItem = ({
         itemContentRef.current
     ])
 
+    useEffect(() => {
+        setItemWidth(width);
+        setItemHeight(height);
+        setItemX(x);
+        setItemY(y);
+    }, [
+        width,
+        height,
+        x,
+        y
+    ])
+
     /*
     const SnapLines = (rootElement:HTMLDivElement) => {
         const canvasroot = rootElement.parentElement
@@ -126,46 +151,54 @@ const CanvasItem = ({
         <div
             ref={itemRef}
             className={getClassNames()}
-            id={`canvas-item-${id}`}
-            data-id={id}
+            data-id={itemId}
             data-x={itemX}
             data-y={itemY}
+            data-width={itemWidth}
+            data-height={itemHeight}
+            data-preserveratio={preserveAspectRatio}
             data-autoheight={autoHeight}
             data-rotate={rotation}
             style={getItemDimensionStyle()}
-            onMouseDown={onItemClick}>
-                <div className='canvas-item__content' ref={itemContentRef}>
+        >
+                <div
+                    className='canvas-item__content'
+                    style={getItemContentStyle()}
+                    ref={itemContentRef}
+                    onMouseDown={onItemClick}
+                >
                     { children }
                 </div>
-                { !locked && (
-                    <div className='canvas-item__handles'>
-                        { !autoHeight && (
-                            <React.Fragment>
-                                <div className='resize-handle-bar resize-top'>
-                                    <div className='resize-handle resize-handle-topleft' />
-                                    <div className='resize-handle resize-handle-topright' />
-                                </div>
+                <div className='canvas-item__handles'>
+                    { (!locked) && (
+                        <React.Fragment>
+                            { !autoHeight && (
+                                <React.Fragment>
+                                    <div className='resize-handle-bar resize-top rt' onMouseDown={onItemClick}>
+                                        <div className='resize-handle resize-handle-topleft rt rl' onMouseDown={onItemClick} />
+                                        <div className='resize-handle resize-handle-topright rt rr' onMouseDown={onItemClick} />
+                                    </div>
 
-                                <div className='resize-handle-bar resize-bottom'>
-                                    <div className='resize-handle resize-handle-bottomleft' />
-                                    <div className='resize-handle resize-handle-bottomright' />
-                                </div>
-                            </React.Fragment>
-                        )}
-                        
-                        <div className='resize-handle-bar resize-left'>
-                            <div className='resize-handle resize-handle-left' />
-                        </div>
-                        <div className='resize-handle-bar resize-right'>
-                            <div className='resize-handle resize-handle-right' />
-                        </div>
+                                    <div className='resize-handle-bar resize-bottom rb' onMouseDown={onItemClick}>
+                                        <div className='resize-handle resize-handle-bottomleft rb rl' onMouseDown={onItemClick} />
+                                        <div className='resize-handle resize-handle-bottomright rb rr' onMouseDown={onItemClick} />
+                                    </div>
+                                </React.Fragment>
+                            )}
 
-                        <div className='rotate-handle' data-itemid={id} data-rotate={rotation}>
-                            <RotateIcon />
-                        </div>
-                    </div>
-                )}
-                
+                            <div className='resize-handle-bar resize-left rl' onMouseDown={onItemClick}>
+                                <div className='resize-handle resize-handle-left rl' onMouseDown={onItemClick} />
+                            </div>
+                            <div className='resize-handle-bar resize-right rr' onMouseDown={onItemClick}>
+                                <div className='resize-handle resize-handle-right rr' onMouseDown={onItemClick} />
+                            </div>
+
+                            {/* <div className='rotate-handle' data-itemid={id} data-rotate={rotation}>
+                                <RotateIcon />
+                            </div> */}
+                        </React.Fragment>
+                    )}
+                </div>
         </div>
     );
 }

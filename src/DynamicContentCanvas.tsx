@@ -4,11 +4,16 @@ import "./ui/DynamicContentCanvas.css";
 import Big from "big.js";
 import { ObjectItem, EditableValue, ActionValue, ValueStatus } from "mendix";
 import CanvasInteract, { Item } from "./components/CanvasInteract";
-import { listUnique } from "./utils/utils";
+
 export function DynamicContentCanvas({
+    widgetId,
+    name,
     data,
+    lockedItemsData,
     clickedItemID,
+    activeID,
     content,
+    popoverContent,
     savedWidth,
     savedHeight,
     savedXpos,
@@ -21,11 +26,18 @@ export function DynamicContentCanvas({
     itemHeight,
     itemXpos,
     itemYpos,
+    itemZIndex,
     itemAngle,
     itemAutoHeight,
-    itemLockPosition
+    itemLockPosition,
+    itemPreserveRatio,
+    presentationClickAction
+    
 }: DynamicContentCanvasContainerProps): ReactElement {
-    const itemsRef = useRef<ObjectItem[]>([]);
+    const [widgetName, setWidgetName] = useState(name);
+    const widgetNameRef = useRef(name);
+    const itemsRef = useRef<Item[]>([]);
+    const objectItemsRef = useRef<ObjectItem[]>([]);
     const [canvasItems, setCanvasItems] = useState<Item[]>([]);
     const savedIdRef = useRef<EditableValue<Big>>();
     const savedWidthRef = useRef<EditableValue<Big>>();
@@ -36,36 +48,63 @@ export function DynamicContentCanvas({
     const savedActionRef = useRef<ActionValue | undefined>();
     const canSaveItemDimension = useRef<boolean>(false);
 
-    const calculateCanvasItems = (items: ObjectItem[]) => {
-        setCanvasItems(
-            items.map(item => {
+    const updateItems = (allItems: Item[], lockedItems: ObjectItem[] = []) => {
+        const updatedItems = allItems
+        .map(item => {
+            if (lockedItems.find(it => it.id === item.id)) {
+                return {
+                    ...item,
+                    locked: true,
+                    z: item.z - 10
+                }
+            } else {
+                return item;
+            }
+        });
+
+        return updatedItems;
+    }
+
+    const getCanvasItems = (objectItems: ObjectItem[] = []) => {
+        try {
+            const canvasItems = objectItems.length ? [...objectItems] : [...objectItemsRef.current];
+
+            return canvasItems.map(item => {
                 const itemID = itemId.get(item);
                 const width = itemWidth.get(item);
                 const height = itemHeight.get(item);
                 const xPos = itemXpos.get(item);
                 const yPos = itemYpos.get(item);
+                const zIndex = itemZIndex.get(item);
                 const angle = itemAngle.get(item);
 
                 return {
-                    id: itemID.value ? itemID.value.toString() : '',
+                    id: item.id,
+                    itemId: itemID.value ? itemID.value.toString() : '',
+                    locked: false,
                     content: content?.get(item),
+                    popoverContent: popoverContent?.get(item),
                     width: width.value?.toNumber() ?? 0,
                     height: height.value?.toNumber() ?? 0,
                     x: xPos.value?.toNumber() ?? 0,
                     y: yPos.value?.toNumber() ?? 0,
+                    z: (zIndex.value?.toNumber() ?? 0) + 12,
                     rotation: angle.value?.toNumber() ?? 0,
                     autoHeight: itemAutoHeight.get(item).value ?? false,
-                    lockPosition: itemLockPosition.get(item).value ?? false
+                    lockPosition: itemLockPosition.get(item).value ?? false,
+                    preserveAspectRatio: itemPreserveRatio.get(item).value ?? false
                 }
-            })
-        )
+            }).sort(it => it.z);
+        } catch (e) {
+            return [];
+        }
     }
 
     const saveItemDimension = (target: HTMLElement) => {
         const id = target.getAttribute('data-id') || target.getAttribute('data-itemid');
 
         if (canSaveItemDimension.current && id) {
-            const item = document.getElementById(`canvas-item-${id}`);
+            const item = document.querySelector(`.${widgetNameRef.current} .canvas-item-${id}`) as HTMLElement;
 
             if (item) {
                 const itemX = (parseFloat(item.getAttribute('data-x') as string) || 0);
@@ -74,9 +113,7 @@ export function DynamicContentCanvas({
                 const itemHeight = (parseFloat(item.style.height as string) || 0);
                 const itemAngle = (parseFloat(item.getAttribute('data-rotate') as string) || 0);
 
-                console.log('itemX to Mendix', itemX, itemY);
-
-                savedID.setValue(new Big(id));
+                savedID?.setValue(new Big(id));
                 savedXposRef.current?.setValue(new Big(itemX.toFixed(8)));
                 savedYposRef.current?.setValue(new Big(itemY.toFixed(8)));
                 savedWidthRef.current?.setValue(new Big(itemWidth.toFixed(8)));
@@ -84,97 +121,50 @@ export function DynamicContentCanvas({
                 savedAngleRef.current?.setValue(new Big(itemAngle.toFixed(8)));
 
                 savedActionRef.current?.execute();
+
+                // data.reload();
             }
         }
     }
 
     const onItemActive = (id: string | number) => {
-        clickedItemID.setValue(new Big(id));
+        clickedItemID?.setValue(new Big(id));
     }
 
-    // const initInteractable = () => {
-    //     interactable.current = interact('.canvas-item-resizable')
-    //         .resizable({
-    //             // resize from all edges and corners
-    //             edges: {
-    //                 left: true,
-    //                 right: true,
-    //                 bottom: '.resize-bottom',
-    //                 top: '.resize-top',
-    //             },
-
-    //             listeners: {
-    //                 start: () => isInteractingRef.current = true,
-    //                 move: onResizeMove,
-    //                 end: (event) => {
-    //                     const target = event.target as HTMLElement;
-
-    //                     saveItemDimension(target);
-    //                     isInteractingRef.current = false;
-    //                 }
-    //             },
-    //             modifiers: [
-    //             // keep the edges inside the parent
-    //             interact.modifiers.restrictEdges({
-    //                 outer: 'parent'
-    //             }),
-
-    //             // minimum size
-    //             interact.modifiers.restrictSize({
-    //                 min: { width: 20, height: 20 }
-    //             }) 
-    //             ],
-    //         })
-
-    //     let dynamicTargets: {
-    //         x?: number;
-    //         y?: number;
-    //         range: number;
-    //     }[] = [];
-
-    //     interactable.current = interact('.canvas-item-draggable')
-    //         .draggable ({
-    //             inertia: true,
-    //             modifiers: [
-    //             ],
-
-    //             listeners: {
-    //                 start: (event) => {},
-    //                 move: onDragMove,
-    //                 end: (event) => {
-                        
-    //                     const target = event.target as HTMLElement;
-    //                 }
-    //         }
-    //         })
-
-    //     rotateInteractable.current = interact('.rotate-handle')
-    //         .draggable({
-    //             listeners: {
-    //                 start: onDragRotateStart,
-    //                 move: onDragRotateMove,
-    //                 end: (event) => {
-    //                     const target = event.target as HTMLElement;
-
-    //                     onDragRotateEnd(event);
-    //                     saveItemDimension(target);
-    //                 }
-    //             }
-    //         })
-    //     }
+    const onSurfaceClick = () => {
+        presentationClickAction?.execute();
+    }
 
   useEffect(() => {
-    calculateCanvasItems(data.items ?? []);
-    itemsRef.current = data.items ?? [];
-  }, [data.items?.length, listUnique(itemsRef.current, data.items)]);
+    if (data.status === ValueStatus.Available) {
+        const canvasItems = getCanvasItems(data.items);
+        const updatedItems = updateItems(canvasItems, lockedItemsData.items ?? []);
+
+        itemsRef.current = [...updatedItems];
+        objectItemsRef.current = [...canvasItems];
+        setCanvasItems([...updatedItems]);
+    } 
+    }, [
+        data?.status === ValueStatus.Available,
+        lockedItemsData?.status === ValueStatus.Available,
+        data?.items,
+        lockedItemsData?.items
+    ]);
+
+  useEffect(() => {
+    return (() => {
+        // itemsRef.current = [];
+        // setCanvasItems([]);
+    })
+  }, []);
 
   useEffect(() => {
     if (
-        savedWidth.status === ValueStatus.Available &&
-        savedHeight.status === ValueStatus.Available &&
-        savedXpos.status === ValueStatus.Available &&
-        savedYpos.status === ValueStatus.Available && 
-        savedAngle.status === ValueStatus.Available 
+        savedWidth?.status === ValueStatus.Available &&
+        savedHeight?.status === ValueStatus.Available &&
+        savedXpos?.status === ValueStatus.Available &&
+        savedYpos?.status === ValueStatus.Available && 
+        savedAngle?.status === ValueStatus.Available 
     ) {
         savedWidthRef.current = savedWidth;
         savedHeightRef.current = savedHeight;
@@ -187,64 +177,29 @@ export function DynamicContentCanvas({
         canSaveItemDimension.current = true;
     }
   }, [
-    savedWidth.status,
-    savedHeight.status,
-    savedXpos.status,
-    savedYpos.status,
-    savedAngle.status
+    savedWidth?.status,
+    savedHeight?.status,
+    savedXpos?.status,
+    savedYpos?.status,
+    savedAngle?.status,
+    savedAction?.canExecute
   ])
+
+  useEffect(() => {
+    if (widgetId?.value) {
+        setWidgetName(widgetId.value);
+        widgetNameRef.current = widgetId.value;
+    }
+  }, [widgetId?.value])
     
     return (
         <CanvasInteract
+            id={widgetName}
             items={[...canvasItems]}
+            activeItemID={activeID?.displayValue}
             onItemActivate={id => onItemActive(id)}
             onDimensionChange={saveItemDimension}
+            onSurfaceClick={onSurfaceClick}
         />
-
-        // <div className='canvas-root' onClick={() => onRootClick()} ref={canvasRootRef}>
-        //     { 
-        //         items.map(item => {
-        //             const itemID = itemId.get(item);
-        //             const width = itemWidth.get(item);
-        //             const height = itemHeight.get(item);
-        //             const xPos = itemXpos.get(item);
-        //             const yPos = itemYpos.get(item);
-        //             const angle = itemAngle.get(item);
-        //             //get other properties of item and return
-
-        //             const renderCanvasItem = (
-        //                 itemID.status === ValueStatus.Available &&
-        //                 width.status === ValueStatus.Available &&
-        //                 height.status === ValueStatus.Available &&
-        //                 xPos.status === ValueStatus.Available &&
-        //                 yPos.status === ValueStatus.Available &&
-        //                 angle.status === ValueStatus.Available
-        //             );
-
-        //             const itemIdValue = new Big(itemID.value!).toNumber();
-
-        //             return (
-        //                 renderCanvasItem
-        //                 ?
-        //                 <CanvasItem
-        //                     key={itemIdValue}
-        //                     id={itemIdValue}
-        //                     locked={!!lockedItems.find(it => it.id === item.id)}
-        //                     active={activeItemId ? activeItemId === itemIdValue : false}
-        //                     width={width.value!.toNumber()}
-        //                     height={height.value!.toNumber()}
-        //                     x={xPos.value!.toNumber()}
-        //                     y={yPos.value!.toNumber()}
-        //                     rotation={angle.value!.toNumber()}
-        //                     autoHeight={itemAutoHeight.get(item).value ?? false}
-        //                     lockPosition={itemLockPosition.get(item).value ?? false}
-        //                     onActivate={id => onItemActive(id)}
-        //                 >{ content?.get(item) }</CanvasItem>
-        //                 :
-        //                 <React.Fragment />
-        //             )
-        //         })
-        //     }
-        // </div>
     );
 }
